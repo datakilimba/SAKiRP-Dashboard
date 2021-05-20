@@ -1,0 +1,49 @@
+---
+title: "SAKiRP Warehouse Stock"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+source("./Daily Warehouse Stocktake.R")
+```
+
+## Column {data-width="650"}
+
+### Beans: Closing Stock
+
+```{r}
+ggplotly(warehouse_closing())
+```
+
+## Column {data-width="350"}
+
+```{r}
+
+valueBox(color = "info", value = "Regional Warehouse Quantities",caption = "Regional Warehouse Quantities")
+
+```
+
+### Calima
+
+```{r}
+calima = format(getCloseValue("calima"), big.mark=",")
+valueBox(paste0(calima," kg"), icon = "fa-seedling")
+```
+
+### Red
+
+```{r}
+red = format(getCloseValue("red"), big.mark=",")
+valueBox(paste0(red," kg"), icon = "fa-seedling")
+```
+
+### Kigoma Yellow
+
+```{r}
+yellow = format(getCloseValue("yellow"), big.mark=",")
+valueBox(paste0(yellow," kg"), icon = "fa-seedling")
+```
