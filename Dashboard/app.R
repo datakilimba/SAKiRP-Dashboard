@@ -4,6 +4,7 @@ library(dygraphs)
 
 source("Market Survey.R")
 
+## Load global data
 load_data()
 
 ui <- dashboardPage(
