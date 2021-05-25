@@ -16,10 +16,9 @@ rawdata = GET(url,authenticate(Sys.getenv("sakirp_user"),Sys.getenv("sakirp_pw")
 content = content(rawdata,"raw",encoding="UTF-8")
 cpi_data = read_csv(content)
 
-cpi_2021 = #cpi_data %>% 
-  furaha %>% 
-  filter(lubridate::year(endtime) == 2021,
-         `survey_info/enumtype`==1) %>% 
+cpi_2021 = cpi_data %>% 
+  #furaha %>% 
+  filter(lubridate::year(endtime) == 2021) %>% 
   left_join(group, by =c("group_name"="id")) %>% 
   left_join(village, by = c("village"="id")) %>% 
   left_join(ward, by = c("ward_id"="id")) %>% 
@@ -253,7 +252,6 @@ cpi = cpi_2021 %>%
   weighted_score = weight*actual
   )
 
-
 cpi_final = cpi %>% 
   group_by(district,ward,village,faab,group,section,attribute) %>% 
   summarise(actual = mean(actual)) %>% 
@@ -343,5 +341,8 @@ cpi_final_1 = cpi_final %>%
   weighted_section_score = section_score*section_weight
   ) %>% 
   group_by(district,ward,village,group) %>% 
-  summarise(`CPI Score` = glue::glue("{round(sum(weighted_section_score*100),0)}%"))
+  summarise(
+    CPI = round(sum(weighted_section_score*100),0),
+    `CPI Score` = glue::glue("{round(sum(weighted_section_score*100),0)}%")
+    )
 
