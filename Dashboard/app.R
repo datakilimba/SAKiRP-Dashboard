@@ -7,52 +7,59 @@ source("Market Survey.R")
 ## Load global data yeah
 load_data()
 
-ui <- dashboardPage(
-    dashboardHeader(title = "SAKiRP Dashboard"),
-    dashboardSidebar(
-        selectInput("district", label = "District", 
+sidebar = dashboardSidebar(
+    sidebarMenu(id = "menu",
+                menuItem("Home", icon = icon("home"), tabName = "home"),
+                menuItem("Market Data", tabName = "market", icon = icon("chart-line")),
+                menuItem("Sunflower", icon = icon("seedling"), tabName = "sunflower")
+    )
+    ,
+    conditionalPanel(
+        condition = "input.menu == 'market'",
+        selectInput("district", label = "District",
                     choices = c("",unique(market_dat_long$district)), selected = "Kigoma"),
         uiOutput("ward_choice"),
         selectInput("product", label = "Product",
                     choices = c("",unique(market_dat_long$item)),
                     selected = "Local Yellow Market Price")
-    ),
-    dashboardBody(
-        fluidRow(
-            column(10, dygraphOutput("regionPlot"))
+    )
+)
+
+body <- dashboardBody(
+    tabItems(
+        tabItem(tabName = "home",
+                h2("Home tab content")
+        ),
+        
+        tabItem(tabName = "market",
+                fluidRow(
+                    column(10, dygraphOutput("regionPlot"))
+                )
+        ),
+        
+        tabItem(tabName = "sunflower",
+                h2("Sunflower tab content")
         )
     )
 )
 
-server <- function(input, output,session) { 
+ui = dashboardPage(
+    dashboardHeader(title = "SAKiRP Dashboard"),
+    sidebar,
+    body
+)
+
+server = function(input, output, session) { 
     
     output$ward_choice <- renderUI({
         selectInput(inputId="ward",
-                    label="Select Ward", 
+                    label="Ward", 
                     choices = unique(ward_dat 
                                      [ward_dat$district==input$district, 
                                          "ward"]))
     })
     
-    # values = reactiveValues()
-    # 
-    # observeEvent(input$product,{
-    #     values$product = if(input$product==""){
-    #         "Local Yellow Market Price"
-    #     }else{
-    #         input$product
-    #     }
-    #     
-    #     values$district = input$district
-    #     
-    #     values$ward = if(input$ward==""){
-    #         "Bitale"
-    #     }else{
-    #         input$ward
-    #     }
-    #     print(paste0("Product: ",values$product))
-    # })
-    # 
+    
     ward = eventReactive(input$product,{
         if(is.null(input$ward)){
             return("Bitale")
@@ -65,20 +72,10 @@ server <- function(input, output,session) {
         input$district
     })
     
-    
-    # ward = reactive(if(is.null(input$ward)){
-    #     return("Bitale")
-    # }else{input$ward}) 
-    # 
-    # district = reactive(input$district)
-    # prod = reactive(input$product)
-    
     output$regionPlot = renderDygraph({
         get_region_dygraph(product = input$product ,dstrct =  district(),
                            wrd = ward())
     })
-    
-    
     
 }
 
